@@ -4,7 +4,7 @@ serverhttp:
   WriteTimeout: 10
 
 postgres:
-  PostgresqlHost: postgesql
+  PostgresqlHost: database
   PostgresqlPort: 5432
   PostgresqlUser: postgres
   PostgresqlPassword: postgres

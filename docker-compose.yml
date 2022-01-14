@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  parse_server:
+    container_name: parse_server
+    build:
+      context: ./
+      dockerfile: docker/Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - DB_PASSWORD=postgres
+    networks:
+      - new
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      migrate:
+        condition: service_started
+
+    restart: always
+    volumes:
+      - ./:/app
+
+  postgresql:
+    image: postgres:13-alpine
+    networks:
+      new:
+        aliases:
+          - database
+    container_name: parser_postges
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    image: migrate/migrate
+    networks:
+      - new
+    volumes:
+      - ./migrations:/migrations
+    # here instead of localhost as the host we use databaseservicename as that is the name we gave to the postgres service
+    command:
+      [ "-path", "/migrations", "-database",  "postgres://postgres:postgres@database:5432/postgres?sslmode=disable", "up" ]
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    links: 
+      - postgresql
+
+networks:
+  new:

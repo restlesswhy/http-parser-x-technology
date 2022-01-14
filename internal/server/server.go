@@ -8,9 +8,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/restlesswhy/rest/http-parsing-x-technology/config"
 	httpdel "github.com/restlesswhy/rest/http-parsing-x-technology/internal/parser/delivery/http_del"
+	postgresrepo "github.com/restlesswhy/rest/http-parsing-x-technology/internal/parser/repository/postgres_repo"
+	"github.com/restlesswhy/rest/http-parsing-x-technology/internal/parser/usecase"
 	"github.com/restlesswhy/rest/http-parsing-x-technology/pkg/logger"
 )
 
@@ -20,14 +23,16 @@ const (
 
 type Server struct {
 	echo        *echo.Echo
+	db          *sqlx.DB
 	cfg *config.Config
 	
 }
 
-func NewServer(cfg *config.Config) *Server {
+func NewServer(cfg *config.Config, db *sqlx.DB) *Server {
 	return &Server{
 		echo: echo.New(),
 		cfg: cfg,
+		db: db,
 	}
 }
 
@@ -40,9 +45,11 @@ func (s *Server) Run() error {
 	}
 	
 	ctx := context.Background()
-	parseHandler := httpdel.NewParseHandler()
+	parserRepo := postgresrepo.NewParserRepository(s.db)
+	parserUC := usecase.NewParserUseCase(s.cfg, parserRepo)
+	parserHandler := httpdel.NewParseHandler(parserUC)
 
-	if err := s.MapHandlers(s.echo, parseHandler); err != nil {
+	if err := s.MapHandlers(s.echo, parserHandler); err != nil {
 		return err
 	}
 

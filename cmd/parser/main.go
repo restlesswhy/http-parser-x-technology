@@ -26,7 +26,7 @@ func main() {
 	}
 	defer psqlDB.Close()
 	
-	s := server.NewServer(cfg)
+	s := server.NewServer(cfg, psqlDB)
 
 	logger.Fatal(s.Run())
 }
