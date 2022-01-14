@@ -1,7 +1,6 @@
 package httpdel
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -20,7 +19,10 @@ func NewParseHandler(parserUC parser.UseCase) *ParseHandler {
 
 func (h *ParseHandler) Get() echo.HandlerFunc {
 	return func(c echo.Context) error {
-		x, _ := h.parserUC.Get(context.Background())
+		x, err := h.parserUC.Get(c.Request().Context())
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		}
 
 		return c.JSON(http.StatusOK, x)
 	}

@@ -11,3 +11,6 @@ postgres:
   PostgresqlDbname: postgres
   PostgresqlSslmode: false
   PgDriver: pgx
+
+parser:
+  IterationTime: 30s

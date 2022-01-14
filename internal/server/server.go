@@ -48,6 +48,8 @@ func (s *Server) Run() error {
 	parserRepo := postgresrepo.NewParserRepository(s.db)
 	parserUC := usecase.NewParserUseCase(s.cfg, parserRepo)
 	parserHandler := httpdel.NewParseHandler(parserUC)
+	
+	parserUC.StartParse()
 
 	if err := s.MapHandlers(s.echo, parserHandler); err != nil {
 		return err

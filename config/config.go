@@ -10,6 +10,7 @@ import (
 type Config struct {
 	ServerHttp HttpConfig
 	Postgres PostgresConfig
+	Parser ParserConfig
 }
 
 type HttpConfig struct {
@@ -26,6 +27,10 @@ type PostgresConfig struct {
 	PostgresqlDbname   string
 	PostgresqlSSLMode  bool
 	PgDriver           string
+}
+
+type ParserConfig struct {
+	IterationTime time.Duration
 }
 
 func LoadConfig(configName string) (*viper.Viper, error) {

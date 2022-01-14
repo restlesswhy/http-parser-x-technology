@@ -7,6 +7,5 @@ import (
 )
 type Repository interface {
 	Get(ctx context.Context) ([]models.Data, error)
-	Update(ctx context.Context, data models.Data) error
-	Create(ctx context.Context, data models.Data) (error)
+	Create(data models.Data) (error)
 }
